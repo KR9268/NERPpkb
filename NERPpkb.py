@@ -81,7 +81,9 @@ def sap_login(guiApp, server_name:str, id:str, pw:str):
 
     #팝업 끄기
     if session.ActiveWindow.Name == "wnd[1]":
-        if session.findById("wnd[1]").Text in ["USEP Information", "Logon Information"]:
+        if "Logon Information" in session.findById("wnd[1]").Text:
+            session.findById("wnd[1]").Close()  #팝업닫기
+        elif "USEP Information" in session.findById("wnd[1]").Text:
             session.findById("wnd[1]").Close()  #팝업닫기
     return connection
 
