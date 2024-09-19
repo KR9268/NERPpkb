@@ -461,3 +461,32 @@ def down_billing_detail(session, companycd:str, date_start:str, date_end:str, do
         list_task.append(down_filename)
 
     return f'작업 완료 ({list_task})'
+
+def nerp_to_dataframe(session, dict_column_name:dict, shell_address:str)->pd.DataFrame:
+    df_list = pd.DataFrame(columns = dict_column_name.keys())
+
+    # 스크롤 내려서 데이터 먼저 로딩
+    if exist_scrollbar(session, shell_address) is True:
+        visible_rows = session.findById(shell_address).VisibleRowCount
+        total_row = session.findById(shell_address).RowCount
+
+        for i in range(0, total_row-1, visible_rows):
+            session.findById(shell_address).firstVisibleRow = i
+
+
+    # 데이터 저장
+    for row_num in range(session.findById(shell_address).RowCount):
+        for column_name in dict_column_name.keys():
+            df_list.at[row_num,column_name] = session.findById(shell_address).getCellValue(row_num, dict_column_name[column_name])
+    
+    return df_list
+
+def exist_scrollbar(session, shell_address:str)->bool:
+    # 전체행과 보이는행 비교하여 스크롤바 유무 판단
+    total_row = session.findById(shell_address).RowCount
+    visible_rows = session.findById(shell_address).VisibleRowCount
+
+    if total_row > visible_rows:
+        return True
+    else:
+        return False
